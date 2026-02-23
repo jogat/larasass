@@ -6,11 +6,13 @@ on:
   pull_request:
 
 jobs:
-  backend:
+  ci:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      # PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -27,15 +29,29 @@ jobs:
           php artisan key:generate
           php artisan config:clear
 
-      # ✅ Pint (format check only; does not modify files)
+      # Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Node deps
+        run: npm ci
+
+      # Build assets so manifest.json exists for tests
+      - name: Build frontend assets
+        run: npm run build
+
+      # Optional (if you added Pint/PHPStan)
       - name: Run Pint
         run: ./vendor/bin/pint --test
 
-      # ✅ PHPStan
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse
 
-      - name: Run migrations (sqlite)
+      # DB + Tests
+      - name: Migrate + Test (sqlite)
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
@@ -43,26 +59,4 @@ jobs:
           mkdir -p database
           test -f database/database.sqlite || touch database/database.sqlite
           php artisan migrate --force
-
-      - name: Run tests
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: php artisan test
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
-        run: npm run build
+          php artisan test
