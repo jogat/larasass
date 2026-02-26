@@ -1,36 +1,60 @@
-import { Head } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import { dashboard } from '@/routes';
+import { router, usePage } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import LocationSwitcher from '@/components/LocationSwitcher';
+import type { LocationItem } from '@/types/location';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
+
+type Props = {
+    locations: LocationItem[];
+    activeLocation: LocationItem | null;
+};
+
 
 export default function Dashboard() {
+    const { locations, activeLocation } = usePage<Props>().props;
+
+    function logout() {
+        router.post(route('logout'));
+    }
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+        <div className="space-y-6 p-6">
+            <div className="space-y-2 rounded border p-4">
+                <div className="text-lg font-semibold">Dashboard</div>
+
+                <button onClick={logout} className="rounded border px-4 py-2">
+                    Logout
+                </button>
+
+                {activeLocation ? (
+                    <div className="space-y-1">
+                        <div>
+                            <strong>Tenant:</strong> {activeLocation.tenantName}
+                        </div>
+
+                        <div>
+                            <strong>Location:</strong> {activeLocation.name}
+                        </div>
+                        <div>
+                            <strong>Role:</strong> {activeLocation.role}
+                        </div>
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                ) : (
+                    <div className="text-red-600">
+                        No active location selected. Please choose one.
                     </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+                )}
             </div>
-        </AppLayout>
+
+            {locations.length > 1 && (
+                <LocationSwitcher
+                    locations={locations}
+                    activeLocationId={activeLocation?.id}
+                    postRouteName="locations.switch"
+                    title="Switch location"
+                    required={false}
+                />
+            )}
+        </div>
     );
 }
