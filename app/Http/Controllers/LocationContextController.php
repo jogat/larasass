@@ -8,28 +8,6 @@ use Inertia\Inertia;
 
 class LocationContextController extends Controller
 {
-    public function test()
-    {
-        $activeLocation = [
-            'id'=> '1',
-            'name'=> 'test',
-            'tenantName'=> 'tenant name',
-            'role'=> 'role1',
-        ];
-
-        $location = [
-            'id'=> '2',
-            'name'=> 'test 2',
-            'tenantName'=> 'tenant name 2',
-            'role'=> 'role2 2',
-        ];
-
-        return Inertia::render('dashboard', [
-//            'locations' => Inertia::defer(fn () => [$activeLocation]),
-            'locations' => [$activeLocation, $location],
-            'activeLocation' => $activeLocation,
-        ]);
-    }
 
     public function select(Request $request)
     {
@@ -82,23 +60,4 @@ class LocationContextController extends Controller
         // Optional: after switch, you can redirect back or to dashboard
         return redirect()->route('dashboard');
     }
-
-    //    public function index(Request $request)
-    //    {
-    //        $location = $request->attributes->get('active_location');
-    //
-    //        // Safe to assume:
-    //        // - User belongs to this location
-    //        // - It exists
-    //        // - It has tenant loaded
-    //
-    //        return Inertia::render('dashboard', [
-    //            'location' => [
-    //                'id' => $location->id,
-    //                'name' => $location->name,
-    //                'tenant' => $location->tenant->name,
-    //                'role' => $location->pivot->role,
-    //            ]
-    //        ]);
-    //    }
 }

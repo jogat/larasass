@@ -22,7 +22,10 @@ export default function Dashboard() {
             <div className="space-y-2 rounded border p-4">
                 <div className="text-lg font-semibold">Dashboard</div>
 
-                <button onClick={logout} className="rounded border px-4 py-2">
+                <button
+                    onClick={logout}
+                    className="rounded border px-4 py-2"
+                >
                     Logout
                 </button>
 

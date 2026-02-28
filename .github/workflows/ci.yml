@@ -60,3 +60,82 @@ jobs:
           test -f database/database.sqlite || touch database/database.sqlite
           php artisan migrate --force
           php artisan test
+
+  dusk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, sqlite3
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install Node deps
+        run: npm ci
+
+      - name: Prepare app + dusk env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          cp .env .env.dusk.local
+          cat >> .env.dusk.local <<'EOF'
+          APP_ENV=dusk
+          APP_URL=http://127.0.0.1:8000
+          DB_CONNECTION=sqlite
+          DB_DATABASE=database/database.testing.sqlite
+          CACHE_STORE=array
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          INERTIA_SSR_ENABLED=false
+          EOF
+          mkdir -p database
+          test -f database/database.testing.sqlite || touch database/database.testing.sqlite
+          php artisan optimize:clear
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Install matching ChromeDriver
+        run: php artisan dusk:chrome-driver --detect
+
+      - name: Start Laravel server
+        run: php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/serve.log 2>&1 &
+
+      - name: Wait for app
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000 >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "App did not start in time"
+          exit 1
+
+      - name: Run Dusk
+        env:
+          CI: true
+        run: php artisan dusk --configuration=phpunit.dusk.xml
+
+      - name: Upload Dusk artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dusk-artifacts
+          path: |
+            tests/Browser/screenshots
+            tests/Browser/console
+            storage/logs

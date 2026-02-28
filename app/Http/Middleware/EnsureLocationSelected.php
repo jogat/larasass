@@ -18,6 +18,11 @@ class EnsureLocationSelected
     {
         $user = $request->user();
 
+        // Allow location selection/switch endpoints without requiring an active location first.
+        if ($request->routeIs('locations.select', 'locations.store', 'locations.switch')) {
+            return $next($request);
+        }
+
         // If no authenticated user, let auth middleware handle it
         if (! $user) {
             return $next($request);
@@ -27,15 +32,18 @@ class EnsureLocationSelected
         $user->loadMissing('locations.tenant');
         $locations = $user->locations;
 
+
         // User has no locations assigned
         if ($locations->isEmpty()) {
             abort(403, 'No locations assigned to this user.');
         }
 
-//        $activeLocationId = session('active_location_id');
-//        $activeLocationId = $request->attributes->get('active_location');
-        $activeLocationId = $request->header('X-Location-ID') ?? $request->attributes->get('active_location');
+        $activeLocationId = session('active_location_id');
 
+
+//        $activeLocationId = $request->attributes->get('active_location');
+//        $activeLocationId = $request->header('X-Location-ID') ?? $request->attributes->get('active_location');
+//dd($activeLocationId);
         // Auto-select if only one
         if ($locations->count() === 1) {
             $activeLocation = $locations->first();

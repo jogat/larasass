@@ -45,6 +45,7 @@ export default function LocationSwitcher({
             <div className="font-semibold">{title}</div>
 
             <select
+                name="location_id"
                 className="border rounded px-3 py-2 w-full"
                 value={selected}
                 onChange={(e) => setSelected(Number(e.target.value))}

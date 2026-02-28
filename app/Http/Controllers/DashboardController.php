@@ -13,8 +13,8 @@ class DashboardController extends Controller
 
         $locations = $user->locations()->with('tenant:id,name')->get();
 
-//        $activeId = session('active_location_id');
-        $activeId = $request->attributes->get('active_location');
+        $activeId = session('active_location_id');
+//        $activeId = $request->attributes->get('active_location');
 
         $active = $locations->firstWhere('id', $activeId);
 
