@@ -8,7 +8,6 @@ use Inertia\Inertia;
 
 class LocationContextController extends Controller
 {
-
     public function select(Request $request)
     {
         $user = $request->user();

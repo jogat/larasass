@@ -32,7 +32,6 @@ class EnsureLocationSelected
         $user->loadMissing('locations.tenant');
         $locations = $user->locations;
 
-
         // User has no locations assigned
         if ($locations->isEmpty()) {
             abort(403, 'No locations assigned to this user.');
@@ -40,10 +39,9 @@ class EnsureLocationSelected
 
         $activeLocationId = session('active_location_id');
 
-
-//        $activeLocationId = $request->attributes->get('active_location');
-//        $activeLocationId = $request->header('X-Location-ID') ?? $request->attributes->get('active_location');
-//dd($activeLocationId);
+        //        $activeLocationId = $request->attributes->get('active_location');
+        //        $activeLocationId = $request->header('X-Location-ID') ?? $request->attributes->get('active_location');
+        // dd($activeLocationId);
         // Auto-select if only one
         if ($locations->count() === 1) {
             $activeLocation = $locations->first();
@@ -51,7 +49,7 @@ class EnsureLocationSelected
         } else {
             $activeLocation = $locations->firstWhere('id', $activeLocationId);
 
-            if (!$activeLocation) {
+            if (! $activeLocation) {
                 return redirect()->route('locations.select');
             }
         }

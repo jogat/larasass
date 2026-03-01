@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationContextController;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -13,11 +12,11 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-//Route::get('dashboard', [LocationContextController::class, 'test'])
+// Route::get('dashboard', [LocationContextController::class, 'test'])
 //    ->middleware(['auth', 'verified', 'location'])
 //    ->name('dashboard');
 //
-//Route::middleware(['auth'])->group(function () {
+// Route::middleware(['auth'])->group(function () {
 //    Route::get('/locations/select', [LocationContextController::class, 'select'])
 //        ->name('locations.select');
 //
@@ -26,7 +25,7 @@ Route::get('/', function () {
 //
 //    Route::post('/locations/switch', [LocationContextController::class, 'switch'])
 //        ->name('locations.switch');
-//});
+// });
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/locations/select', [LocationContextController::class, 'select'])->name('locations.select');
@@ -34,12 +33,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/locations/switch', [LocationContextController::class, 'switch'])->name('locations.switch');
 });
 
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 
-
 require __DIR__.'/settings.php';
-
-

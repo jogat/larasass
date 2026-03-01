@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tenant extends Model
 {
     protected $fillable = ['name', 'slug'];
+
     public function locations()
     {
         return $this->hasMany(Location::class);

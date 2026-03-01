@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Location extends Model
 {
     protected $fillable = ['name', 'slug', 'tenant_id'];
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);

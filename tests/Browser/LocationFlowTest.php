@@ -6,8 +6,6 @@ use App\Models\Location;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
@@ -21,7 +19,7 @@ class LocationFlowTest extends DuskTestCase
         $password = 'secret123';
         // Arrange
         $user = User::factory()->create([
-            'password' => $password
+            'password' => $password,
         ]);
 
         $tenant = Tenant::create(['name' => 'Demo Tenant', 'slug' => 'demo-tenant']);
