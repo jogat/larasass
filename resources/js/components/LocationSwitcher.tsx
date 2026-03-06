@@ -24,12 +24,12 @@ export default function LocationSwitcher({
                                              title = 'Select Location',
                                              required = false,
                                          }: Props) {
-    const initialValue = useMemo(() => {
+    const initialValue = useMemo<number | ''>(() => {
         if (activeLocationId) return activeLocationId;
         return required ? (locations[0]?.id ?? '') : '';
     }, [activeLocationId, required, locations]);
 
-    const [selected, setSelected] = useState<number | ''>(initialValue as any);
+    const [selected, setSelected] = useState<number | ''>(initialValue);
     const isSame = selected !== '' && activeLocationId === selected;
 
     const submit = () => {
