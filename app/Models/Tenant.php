@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tenant extends Model
 {
     protected $fillable = ['name', 'slug'];
 
-    public function locations()
+    /**
+     * @return HasMany<Location, $this>
+     */
+    public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
     }

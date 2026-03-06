@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Location;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -28,8 +29,8 @@ class EnsureLocationSelected
             return $next($request);
         }
 
-        /** @var Collection $locations */
         $user->loadMissing('locations.tenant');
+        /** @var Collection<int, Location> $locations */
         $locations = $user->locations;
 
         // User has no locations assigned

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,6 +13,7 @@ class LocationContextController extends Controller
     {
         $user = $request->user();
 
+        /** @var EloquentCollection<int, Location> $locations */
         $locations = $user->locations()
             ->with('tenant:id,name,slug') // show tenant name in UI
             ->get()
@@ -50,6 +52,7 @@ class LocationContextController extends Controller
         $user = $request->user();
 
         // Critical: verify membership (never trust ID)
+        /** @var Location $location */
         $location = $user->locations()
             ->where('locations.id', $request->integer('location_id'))
             ->firstOrFail();

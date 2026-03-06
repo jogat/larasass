@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
+ * @property int $id
+ * @property string $name
+ * @property string $email
  * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Location> $locations
  */
 class User extends Authenticatable
@@ -54,6 +57,9 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsToMany<Location, $this>
+     */
     public function locations(): BelongsToMany
     {
         return $this->belongsToMany(Location::class)
