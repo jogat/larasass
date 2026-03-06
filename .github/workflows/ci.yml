@@ -89,6 +89,15 @@ jobs:
       - name: Prepare app + dusk env
         run: |
           cp .env.example .env
+          mkdir -p database
+          test -f database/database.sqlite || touch database/database.sqlite
+          test -f database/database.testing.sqlite || touch database/database.testing.sqlite
+          cat >> .env <<'EOF'
+          DB_DATABASE=database/database.sqlite
+          CACHE_STORE=array
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          EOF
           php artisan key:generate
           cp .env .env.dusk.local
           cat >> .env.dusk.local <<'EOF'
@@ -101,8 +110,6 @@ jobs:
           SESSION_DRIVER=file
           INERTIA_SSR_ENABLED=false
           EOF
-          mkdir -p database
-          test -f database/database.testing.sqlite || touch database/database.testing.sqlite
           php artisan optimize:clear
 
       - name: Build frontend assets
