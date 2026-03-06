@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/locations/switch', [LocationContextController::class, 'switch'])->name('locations.switch');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'location'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 
