@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Location;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,7 +19,7 @@ class AuthenticationFlowTest extends TestCase
 
     public function test_user_can_register_and_access_dashboard(): void
     {
-        $response = $this->post('/register', [
+        $response = $this->post(route('register.store'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -26,6 +28,16 @@ class AuthenticationFlowTest extends TestCase
 
         $response->assertRedirect('/dashboard');
         $this->assertAuthenticated();
+
+        $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+        $tenant = Tenant::create(['name' => 'Demo Tenant', 'slug' => 'demo-tenant']);
+        $location = Location::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'HQ',
+            'slug' => 'hq',
+        ]);
+        $user->locations()->attach($location->id, ['role' => 'admin']);
+
         $this->get('/dashboard')->assertOk();
     }
 
@@ -35,7 +47,7 @@ class AuthenticationFlowTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        $this->post('/login', [
+        $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'password',
         ])->assertRedirect('/dashboard');
@@ -43,7 +55,7 @@ class AuthenticationFlowTest extends TestCase
         $this->assertAuthenticatedAs($user);
 
         // Some kits expect POST /logout, some accept it; yours likely does.
-        $this->post('/logout')->assertRedirect('/');
+        $this->post(route('logout'))->assertRedirect('/');
         $this->assertGuest();
     }
 

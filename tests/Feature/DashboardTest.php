@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Location;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +21,14 @@ class DashboardTest extends TestCase
     public function test_authenticated_users_can_visit_the_dashboard()
     {
         $user = User::factory()->create();
+        $tenant = Tenant::create(['name' => 'Demo Tenant', 'slug' => 'demo-tenant']);
+        $location = Location::create([
+            'tenant_id' => $tenant->id,
+            'name' => 'HQ',
+            'slug' => 'hq',
+        ]);
+        $user->locations()->attach($location->id, ['role' => 'admin']);
+
         $this->actingAs($user);
 
         $response = $this->get(route('dashboard'));
