@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Location;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class LocationContextController extends Controller
+{
+    public function select(Request $request)
+    {
+        $user = $request->user();
+
+        /** @var EloquentCollection<int, Location> $locations */
+        $locations = $user->locations()
+            ->with('tenant:id,name,slug') // show tenant name in UI
+            ->get()
+            ->map(fn (Location $loc) => [
+                'id' => $loc->id,
+                'name' => $loc->name,
+                'tenant' => [
+                    'name' => $loc->tenant->name,
+                    'slug' => $loc->tenant->slug,
+                ],
+                'role' => $loc->pivot->role,
+            ]);
+
+        return Inertia::render('locations/select', [
+            'locations' => $locations,
+            'activeLocationId' => session('active_location_id'),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        return $this->setActiveLocation($request);
+    }
+
+    public function switch(Request $request)
+    {
+        return $this->setActiveLocation($request);
+    }
+
+    private function setActiveLocation(Request $request)
+    {
+        $request->validate([
+            'location_id' => ['required', 'integer'],
+        ]);
+
+        $user = $request->user();
+
+        // Critical: verify membership (never trust ID)
+        /** @var Location $location */
+        $location = $user->locations()
+            ->where('locations.id', $request->integer('location_id'))
+            ->firstOrFail();
+
+        session(['active_location_id' => $location->id]);
+
+        // Optional: after switch, you can redirect back or to dashboard
+        return redirect()->route('dashboard');
+    }
+}
